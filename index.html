@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product — Secure Download</title>
+  <title>Wallet — Secure Download</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
@@ -262,6 +262,39 @@
       margin: 0 auto;
       padding: 6rem 2rem;
     }
+    .downloads-section .section-title {
+      margin-bottom: 2rem;
+    }
+    .downloads-section .section-title h2 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+    }
+    .downloads-cta-block {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding: 2rem;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: 16px;
+    }
+    .downloads-cta-block .cta-dir {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px var(--accent-glow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .downloads-cta-block .cta-dir:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px var(--accent-glow);
+    }
     .download-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -322,9 +355,10 @@
     .downloads-list-placeholder {
       color: var(--text-muted);
       text-align: center;
-      padding: 3rem;
-      border: 1px dashed var(--border);
+      padding: 2.5rem;
+      border: 1px solid var(--border);
       border-radius: 16px;
+      background: var(--bg-card);
     }
     .downloads-list-placeholder a { color: var(--accent); }
 
@@ -348,7 +382,7 @@
 
   <nav id="nav">
     <div class="inner">
-      <span class="logo" data-i18n="nav.logo">Product</span>
+      <span class="logo" data-i18n="nav.logo">Wallet</span>
       <div style="display:flex;align-items:center;">
         <a href="#features" data-i18n="nav.features">Features</a>
         <a href="#downloads" data-i18n="nav.downloads">Downloads</a>
@@ -400,6 +434,9 @@
       <h2 data-i18n="downloads.title">Software downloads</h2>
       <p data-i18n="downloads.subtitle">Verify SHA256 checksums to ensure file integrity</p>
     </div>
+    <div class="downloads-cta-block">
+      <a href="downloads/" class="cta-dir" data-i18n="downloads.gotoDir">📂 Open download folder</a>
+    </div>
     <div id="downloads-list">
       <div class="downloads-list-placeholder" id="downloads-placeholder">
         <p data-i18n="placeholder.p1">No releases published yet.</p>
@@ -410,20 +447,20 @@
   </section>
 
   <footer>
-    <p data-i18n="footer">© 2025 Product · Use HTTPS and verify SHA256</p>
+    <p data-i18n="footer">© 2025  · Use HTTPS and verify SHA256</p>
   </footer>
 
   <script>
     const TRANSLATIONS = {
       en: {
-        title: 'Product — Secure Download',
-        nav: { logo: 'Product', features: 'Features', downloads: 'Downloads' },
+        title: 'Wallet — Secure Download',
+        nav: { logo: 'Wallet', features: 'Features', downloads: 'Downloads' },
         hero: { badge: 'Secure · Open · Verifiable', title1: 'Professional software', title2: 'Secure download', subtitle: 'SHA256 checksums for integrity and trust. Multi‑platform clients and docs.', cta: 'Download now ↓', scrollHint: 'Scroll for more' },
         features: { title: 'Why choose us', subtitle: 'Secure, transparent, easy to use' },
         feature1: { title: 'HTTPS & integrity checks', desc: 'HTTPS and SHA256 hashes so you can verify downloads and prevent tampering.' },
         feature2: { title: 'Multi‑platform', desc: 'Android APK and Windows/macOS/Linux desktop clients.' },
         feature3: { title: 'Stable & fast', desc: 'CDN and resilience tuning for high availability and smooth downloads.' },
-        downloads: { title: 'Software downloads', subtitle: 'Verify SHA256 checksums to ensure file integrity' },
+        downloads: { title: 'Software downloads', subtitle: 'Verify SHA256 checksums to ensure file integrity', gotoDir: '📂 Open download folder' },
         placeholder: { p1: 'No releases published yet.', p2: 'After releasing, run <code>scripts/checksums.sh</code> to generate checksums; this page will update.', p3: 'You can also browse {0} to list files.' },
         footer: '© 2025 Product · Use HTTPS and verify SHA256',
         btnCopy: 'Copy checksum', btnCopied: 'Copied', btnDownload: 'Download'
@@ -436,7 +473,7 @@
         feature1: { title: 'HTTPS et vérification d\'intégrité', desc: 'HTTPS et hachages SHA256 pour vérifier les téléchargements et prévenir la falsification.' },
         feature2: { title: 'Multi‑plateforme', desc: 'APK Android et clients Windows/macOS/Linux.' },
         feature3: { title: 'Stable et rapide', desc: 'CDN et optimisation pour haute disponibilité et téléchargements fluides.' },
-        downloads: { title: 'Téléchargements logiciels', subtitle: 'Vérifiez les sommes SHA256 pour garantir l\'intégrité des fichiers' },
+        downloads: { title: 'Téléchargements logiciels', subtitle: 'Vérifiez les sommes SHA256 pour garantir l\'intégrité des fichiers', gotoDir: '📂 Ouvrir le dossier de téléchargement' },
         placeholder: { p1: 'Aucune version publiée pour l\'instant.', p2: 'Après publication, exécutez <code>scripts/checksums.sh</code> pour générer les sommes ; cette page se mettra à jour.', p3: 'Vous pouvez aussi consulter {0} pour la liste des fichiers.' },
         footer: '© 2025 Produit · Utilisez HTTPS et vérifiez le SHA256',
         btnCopy: 'Copier la somme', btnCopied: 'Copié', btnDownload: 'Télécharger'
@@ -449,7 +486,7 @@
         feature1: { title: 'HTTPSと完全性チェック', desc: 'HTTPSとSHA256ハッシュでダウンロードを検証し、改ざんを防ぎます。' },
         feature2: { title: 'マルチプラットフォーム', desc: 'Android APKおよびWindows/macOS/Linuxデスクトップクライアント。' },
         feature3: { title: '安定・高速', desc: 'CDNと冗長化で高可用性とスムーズなダウンロードを実現。' },
-        downloads: { title: 'ソフトウェアのダウンロード', subtitle: 'SHA256チェックサムでファイルの完全性を確認してください' },
+        downloads: { title: 'ソフトウェアのダウンロード', subtitle: 'SHA256チェックサムでファイルの完全性を確認してください', gotoDir: '📂 ダウンロードフォルダを開く' },
         placeholder: { p1: '公開済みのリリースはまだありません。', p2: 'リリース後、<code>scripts/checksums.sh</code> を実行するとチェックサムが生成され、このページに反映されます。', p3: 'ファイル一覧は {0} からも確認できます。' },
         footer: '© 2025 製品 · HTTPSでアクセスしSHA256を検証してください',
         btnCopy: 'チェックサムをコピー', btnCopied: 'コピーしました', btnDownload: 'ダウンロード'
@@ -462,7 +499,7 @@
         feature1: { title: 'HTTPS & Integritätsprüfung', desc: 'HTTPS und SHA256-Hashes zur Überprüfung von Downloads und zum Schutz vor Manipulation.' },
         feature2: { title: 'Multi‑Plattform', desc: 'Android APK und Windows/macOS/Linux-Desktop-Clients.' },
         feature3: { title: 'Stabil & schnell', desc: 'CDN und Ausfallsicherheit für hohe Verfügbarkeit und reibungslose Downloads.' },
-        downloads: { title: 'Software-Downloads', subtitle: 'SHA256-Prüfsummen zur Sicherstellung der Dateiintegrität prüfen' },
+        downloads: { title: 'Software-Downloads', subtitle: 'SHA256-Prüfsummen zur Sicherstellung der Dateiintegrität prüfen', gotoDir: '📂 Download-Ordner öffnen' },
         placeholder: { p1: 'Noch keine Veröffentlichungen.', p2: 'Nach dem Release <code>scripts/checksums.sh</code> ausführen; die Seite aktualisiert sich automatisch.', p3: 'Sie können auch {0} für die Dateiliste aufrufen.' },
         footer: '© 2025 Produkt · HTTPS nutzen und SHA256 prüfen',
         btnCopy: 'Prüfsumme kopieren', btnCopied: 'Kopiert', btnDownload: 'Download'
@@ -475,7 +512,7 @@
         feature1: { title: 'HTTPS والتحقق من السلامة', desc: 'HTTPS ومجاميع SHA256 للتحقق من التنزيلات ومنع العبث.' },
         feature2: { title: 'متعدد المنصات', desc: 'تطبيق أندرويد وعملاء Windows/macOS/Linux.' },
         feature3: { title: 'مستقر وسريع', desc: 'شبكة CDN وضبط المرونة لتوفر عال وتنزيلات سلسة.' },
-        downloads: { title: 'تنزيلات البرمجيات', subtitle: 'تحقق من مجاميع SHA256 لضمان سلامة الملفات' },
+        downloads: { title: 'تنزيلات البرمجيات', subtitle: 'تحقق من مجاميع SHA256 لضمان سلامة الملفات', gotoDir: '📂 فتح مجلد التنزيلات' },
         placeholder: { p1: 'لا توجد إصدارات منشورة بعد.', p2: 'بعد النشر، شغّل <code>scripts/checksums.sh</code> لتوليد المجاميع؛ ستحدّث هذه الصفحة تلقائياً.', p3: 'يمكنك أيضاً تصفح {0} لقائمة الملفات.' },
         footer: '© 2025 المنتج · استخدم HTTPS وتحقق من SHA256',
         btnCopy: 'نسخ المجموع', btnCopied: 'تم النسخ', btnDownload: 'تنزيل'
