@@ -1,0 +1,36 @@
+nginx  配置文件
+
+server {
+    listen 80;
+    server_name crywal.best www.crywal.best;
+
+    root /var/www/my-site; # 替换成你实际的网页路径 [cite: 21, 71]
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+
+解决 HTTPS 警告
+由于你之前访问出现了“此网站不支持安全连接”的提示，你需要安装 SSL 证书。对于资深后端开发来说，使用 Certbot 是最快捷的方案：
+
+Bash
+sudo apt update
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d crywal.best -d www.crywal.best
+
+ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+
+执行以下命令让配置生效：
+
+Bash
+systemctl reload nginx
+# 或者
+systemctl restart nginx
+4. 再次验证端口
+再次运行你的命令：
+
+Bash
+ss -tulnp | grep -E '80|443'

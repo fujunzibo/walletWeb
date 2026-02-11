@@ -1,0 +1,42 @@
+# 1. 自动跳转：HTTP (80) -> HTTPS (443)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name crywal.best www.crywal.best;
+
+    # Certbot 自动生成的跳转逻辑
+    if ($host = www.crywal.best) {
+        return 301 https://$host$request_uri;
+    }
+    if ($host = crywal.best) {
+        return 301 https://$host$request_uri;
+    }
+
+    return 404; 
+}
+
+# 2. HTTPS 主配置
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl; # 建议移除 ipv6only=on 除非有特殊多网卡需求
+
+    server_name crywal.best www.crywal.best;
+    root /var/www/my-site;
+    index index.html index.htm index.nginx-debian.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # SSL 证书路径 (Certbot 管理)
+    ssl_certificate /etc/letsencrypt/live/crywal.best/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/crywal.best/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # 注意：如果需要 PHP 支持，请取消下面注释并确保路径正确
+    # location ~ \.php$ {
+    #     include snippets/fastcgi-php.conf;
+    #     fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+    # }
+}
