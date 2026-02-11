@@ -219,3 +219,166 @@ cd /var/www/my-site && ./scripts/release.sh /tmp/my-app.apk
 ---
 
 按上述步骤做完，网站就已在 Linux 服务器上跑起来了；后续更新只需传文件或执行 `release.sh` / `checksums.sh` 即可。
+
+---
+
+## 故障排除
+
+### 报错：`/usr/bin/env: 'bash\r': No such file or directory`
+
+**原因**：脚本在 Windows 下编辑过，使用了 Windows 换行符（CRLF），Linux 无法识别。
+
+**在服务器上执行**（去掉行尾的 `\r`）：
+
+```bash
+cd /var/www/my-site
+sed -i 's/\r$//' scripts/release.sh scripts/checksums.sh scripts/analyze-downloads.sh
+```
+
+然后重新运行：
+
+```bash
+./scripts/release.sh ./downloads/app-release.apk
+```
+
+**以后**：项目里已加 `.gitattributes`，用 Git 克隆或拉取时 `*.sh` 会自动用 Unix 换行；在 Windows 上编辑脚本时，用 VS Code / Cursor 把右下角“CRLF”改成“LF”再保存，可避免再次出现此问题。
+
+### 访问 /downloads/ 出现 403 Forbidden
+
+**原因**：Nginx 进程用户（Ubuntu 上多为 `www-data`）没有权限读网站目录或 `downloads` 目录。
+
+**在服务器上执行**（按你的实际路径改 `/var/www/my-site`）：
+
+```bash
+# 把网站目录及其子目录的所有者改为 Nginx 用户
+sudo chown -R www-data:www-data /var/www/my-site
+
+# 保证目录可被 Nginx 进入、文件可读
+sudo chmod 755 /var/www/my-site
+sudo chmod 755 /var/www/my-site/downloads
+sudo chmod 644 /var/www/my-site/downloads/*
+
+# 若 downloads 下有子目录（如 archive），也要可读可进
+sudo find /var/www/my-site/downloads -type d -exec chmod 755 {} \;
+sudo find /var/www/my-site/downloads -type f -exec chmod 644 {} \;
+```
+
+然后重载 Nginx 再试：
+
+```bash
+sudo systemctl reload nginx
+```
+
+再在浏览器打开 `https://crywal.best/downloads/`，应能看见目录列表或文件。若仍 403，可查看 Nginx 错误日志：`sudo tail -20 /var/log/nginx/error.log`。
+
+**子目录（如 `/downloads/archive/`）也 403**：多半是权限/属主问题。在服务器上执行：
+```bash
+sudo chown -R www-data:www-data /var/www/my-site/downloads
+sudo find /var/www/my-site/downloads -type d -exec chmod 755 {} \;
+sudo find /var/www/my-site/downloads -type f -exec chmod 644 {} \;
+sudo systemctl reload nginx
+```
+
+### 错误：directory index of ".../downloads/" is forbidden
+
+**原因**：访问的是 **HTTPS**（如 `https://www.crywal.best/downloads/`），但处理 443 的 server 里没有对 `/downloads` 开启目录列表（`autoindex on`），或根本没有 `location /downloads`。
+
+**处理**：在服务器上编辑 Nginx 里**监听 443** 的那段配置，为 `/downloads` 加上和 80 一样的 location（含 `autoindex on`）。
+
+1. 查看当前站点配置（含 Certbot 生成的 443）：
+   ```bash
+   sudo grep -l "crywal.best\|my-site" /etc/nginx/sites-enabled/*
+   ```
+   或直接：
+   ```bash
+   sudo nano /etc/nginx/sites-available/my-site
+   ```
+   若 Certbot 把 HTTPS 写到了 `sites-available/default` 或别的文件，就编辑那个文件。
+
+2. 找到 **listen 443** 的 `server { ... }`，在其中的 `location / { ... }` 后面加上：
+   ```nginx
+   location /downloads {
+       alias /var/www/my-site/downloads/;
+       autoindex on;
+       autoindex_exact_size off;
+       autoindex_localtime on;
+       add_header Content-Disposition "attachment";
+   }
+   ```
+   若已有 `location /downloads` 但没有 `autoindex on;`，补上这一行即可。
+
+3. 检查并重载：
+   ```bash
+   sudo nginx -t && sudo systemctl reload nginx
+   ```
+   再访问 `https://www.crywal.best/downloads/` 应能看见目录列表。
+
+### 下载得到 .htm 或 .apk 无法下载（实际下到的是网页）
+
+**原因**：要么服务器上**没有该文件**或**权限不对**，Nginx 返回 404/403 的 HTML 页面，浏览器把它当“下载”保存成 .htm；要么 Nginx 没有把文件按二进制输出。
+
+**1）确认文件在服务器上且可读**
+
+在服务器上执行：
+
+```bash
+ls -la /var/www/my-site/downloads/
+```
+
+确认里面有你的 .apk 等文件，且所有者/权限正确：
+
+```bash
+sudo chown -R www-data:www-data /var/www/my-site/downloads
+sudo chmod 644 /var/www/my-site/downloads/*.apk
+```
+
+**2）让 Nginx 按二进制提供下载**
+
+在**处理 80 和 443** 的 `location /downloads` 里加上：
+
+```nginx
+default_type application/octet-stream;
+```
+
+例如该块为：
+
+```nginx
+location /downloads {
+    alias /var/www/my-site/downloads/;
+    autoindex on;
+    autoindex_exact_size off;
+    autoindex_localtime on;
+    default_type application/octet-stream;   # 加这一行
+    add_header Content-Disposition "attachment";
+}
+```
+
+然后执行：`sudo nginx -t && sudo systemctl reload nginx`，再试下载。若仍得到 .htm，用浏览器 F12 → Network 看该请求的状态码（404/403 等）和响应内容，便于继续排查。
+
+### 点「Open Download folder」弹出“另存为”保存 HTML，而不是显示下载列表
+
+**原因**：Nginx 在 `location /downloads` 里对所有响应（包括目录列表页）都加了 `Content-Disposition: attachment`，浏览器就会把目录列表当成“附件”下载，弹出“另存为”保存成 .htm。
+
+**处理**：只对**具体文件**（如 /downloads/xxx.apk）加“下载”头，对**目录**（/downloads/）不加，让浏览器直接显示列表。
+
+在 80 和 443 的 server 里，把原来的一个 `location /downloads` 拆成两个：
+
+1. **具体文件**（正则优先匹配）：
+   ```nginx
+   location ~ ^/downloads/(.+)$ {
+       alias /var/www/my-site/downloads/$1;
+       default_type application/octet-stream;
+       add_header Content-Disposition "attachment";
+   }
+   ```
+2. **目录列表**（不加 attachment）：
+   ```nginx
+   location /downloads {
+       alias /var/www/my-site/downloads/;
+       autoindex on;
+       autoindex_exact_size off;
+       autoindex_localtime on;
+   }
+   ```
+
+然后执行：`sudo nginx -t && sudo systemctl reload nginx`。再点「Open Download folder」应直接打开下载列表页，点具体 .apk 才会触发下载。

@@ -28,6 +28,20 @@ server {
         try_files $uri $uri/ =404;
     }
 
+  location ~ ^/downloads/(.+)$ {
+        alias /var/www/my-site/downloads/$1;
+        default_type application/octet-stream;
+        add_header Content-Disposition "attachment";
+    }
+
+   location /downloads {
+        alias /var/www/my-site/downloads/;
+        autoindex on;
+        autoindex_exact_size off;
+        autoindex_localtime on;
+#        add_header Content-Disposition "attachment";
+    }
+
     # SSL 证书路径 (Certbot 管理)
     ssl_certificate /etc/letsencrypt/live/crywal.best/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/crywal.best/privkey.pem;
